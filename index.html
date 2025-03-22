@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCB Trip Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Input and Select Styling */
+        .input-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            background-color: hsl(266.2,100%,50.4%);
+            color: white;
+            padding: 12px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: hsl(266.2,100%,50.4%);
+        }
+
+        /* Responsive Layout (Desktop View) */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                padding: 30px;
+            }
+
+            .input-container {
+                width: 48%;
+            }
+
+            button {
+                width: 100%;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MCB Trip Calculator</h1>
+        
+        <div class="input-container">
+            <label for="load">Enter Load (Amperes)</label>
+            <input type="number" id="load" placeholder="e.g. 15">
+
+            <label for="mcb-rating">MCB Rating (Amperes)</label>
+            <input type="number" id="mcb-rating" placeholder="e.g. 10">
+
+            <label for="mcb-type">MCB Type</label>
+            <select id="mcb-type">
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+            </select>
+
+            <button onclick="calculateTripTime()">Calculate</button>
+        </div>
+
+        <div class="output-section">
+            <h2>Result:</h2>
+            <p id="result">Enter values and press Calculate.</p>
+        </div>
+
+        <canvas id="graphCanvas"></canvas>
+    </div>
+
+    <script>
+        function calculateTripTime() {
+            let load = parseFloat(document.getElementById("load").value);
+            let mcbRating = parseFloat(document.getElementById("mcb-rating").value);
+            let type = document.getElementById("mcb-type").value;
+            let result = document.getElementById("result");
+
+            if (isNaN(load) || isNaN(mcbRating) || load <= 0 || mcbRating <= 0) {
+                result.innerHTML = "Please enter valid values.";
+                return;
+            }
+
+            let factor = load / mcbRating;
+            let tripTime;
+
+            if (factor <= 1) {
+                result.innerHTML = "MCB will not trip under normal conditions.";
+                return;
+            }
+
+            // Trip time based on MCB type
+            if (type === "B") {
+                if (factor < 1.13) tripTime = "Several hours or days";
+                else if (factor < 1.45) tripTime = "Up to 1 hour";
+                else if (factor < 3) tripTime = "1-30 seconds";
+                else tripTime = "Instant (less than 0.1 sec)";
+            } 
+            else if (type === "C") {
+                if (factor < 1.13) tripTime = "Several hours or days";
+                else if (factor < 1.45) tripTime = "Up to 1 hour";
+                else if (factor < 5) tripTime = "1-30 seconds";
+                else tripTime = "Instant (less than 0.1 sec)";
+            } 
+            else if (type === "D") {
+                if (factor < 1.13) tripTime = "Several hours or days";
+                else if (factor < 1.45) tripTime = "Up to 1 hour";
+                else if (factor < 10) tripTime = "1-30 seconds";
+                else tripTime = "Instant (less than 0.1 sec)";
+            }
+
+            result.innerHTML = `MCB will trip in approx <strong>${tripTime}</strong> due to overload.`;
+        }
+    </script>
+</body>
+</html>
